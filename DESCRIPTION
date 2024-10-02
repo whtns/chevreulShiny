@@ -1,7 +1,7 @@
 Type: Package
-Package: chevreul
+Package: chevreulShiny
 Title: Tools for managing SingleCellExperiment objects as projects
-Version: 0.99.52
+Version: 0.99.1
 Authors@R: c(
     person("Kevin", "Stachelek", , "kevin.stachelek@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0003-2085-695X")),
     person("Bhavana", "Bhat", , "bhavanabhat29@gmail.com", role = "aut")
@@ -18,13 +18,12 @@ BugReports: https://github.com/cobriniklab/chevreul/issues
 Depends:
     R (>= 4.4.0),
     SingleCellExperiment,
-    scater,
     shiny (>= 1.6.0),
-    shinydashboard
+    shinydashboard,
+    chevreulProcess,
+    chevreulPlot
 Imports:
     SummarizedExperiment,
-    clustree,
-    ComplexHeatmap (>= 2.5.4),
     DataEditR (>= 0.0.9),
     DBI,
     dplyr,
@@ -33,15 +32,10 @@ Imports:
     fs,
     future,
     glue,
-    ggplotify,
-    ggpubr,
     janitor,
     httr,
-    magrittr,
     megadepth,
     methods,
-    patchwork,
-    plotly,
     rlang,
     RSQLite,
     shinyFiles,
@@ -49,25 +43,18 @@ Imports:
     shinyjs,
     shinyWidgets,
     tidyr,
-    unglue,
     waiter,
     wiggleplotr (>= 1.13.1),
     purrr,
-    batchelor,
     stringr,
     tibble,
     ggplot2,
-    scran,
     AnnotationDbi,
-    EnhancedVolcano,
     EnrichmentBrowser,
-    harmony,
-    scuttle,
     grDevices,
     graphics,
     stats,
     utils,
-    pillar,
     cluster,
     circlize,
     bluster,

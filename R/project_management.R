@@ -10,11 +10,14 @@ create_proj_matrix <- function(proj_list) {
 
     proj_tbl <- tibble(project_path = proj_list, project_name = path_file(proj_list))
 
-    patterns <- c("{date}-{user}-{note}-{species}_proj")
-
-    proj_matrix <- unglue::unglue_data(proj_list, patterns) |>
+    sp_cols <- c("date", "user", "note", "species")
+    
+    proj_matrix <-
+        proj_list |> 
+        tibble::enframe("project_name", "project_path") |> 
+        tidyr::separate(project_name, sp_cols, sep = "-", remove = FALSE) |> 
         mutate(date = path_file(date)) |>
-        bind_cols(proj_tbl) |>
+        dplyr::select(everything(), project_name) |> 
         identity()
 
     primary_projects <-

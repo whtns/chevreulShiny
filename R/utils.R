@@ -407,3 +407,25 @@ save_object <- function(object, prefix = "unfiltered", proj_dir = getwd()) {
 
     return(object)
 }
+
+
+
+#' Plotly settings
+#'
+#' Change settings of a plotly plot
+#'
+#' @param plotly_plot  A plotly plot
+#' @param width Default set to '600'
+#' @param height Default set to '700'
+#'
+#' @noRd
+plotly_settings <- function(plotly_plot, width = 600, height = 700) {
+    plotly_plot |>
+        layout(dragmode = "lasso") |>
+        config(toImageButtonOptions = list(format = "svg", 
+                                           filename = "myplot", 
+                                           width = width, height = height)) |>
+        identity()
+}
+
+

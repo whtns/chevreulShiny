@@ -11,15 +11,15 @@
 list_plot_types <- function(object) {
     meta_types <- tibble(
         vars = colnames(colData(object)),
-        var_type = map_chr(map(colData(object), new_pillar_type), 1),
+        var_type = map_chr(colData(object), class),
         num_levels = unlist(map(colData(object), ~ length(unique(.x))))
     )
 
     meta_types <- meta_types |>
         filter(!grepl("_snn_res", vars)) |>
         mutate(meta_type = case_when(
-            var_type %in% c("int", "dbl") ~ "continuous",
-            var_type %in% c("chr", "fct", "ord", "lgl") ~ "category"
+            var_type %in% c("integer", "numeric") ~ "continuous",
+            var_type %in% c("character", "factor", "logical") ~ "category"
         )) |>
         mutate(meta_type = ifelse(meta_type == "continuous" & num_levels < 30, "category", meta_type)) |>
         filter(num_levels > 1) |>
@@ -29,14 +29,19 @@ list_plot_types <- function(object) {
         filter(meta_type == "continuous") |>
         pull(vars)
 
-    continuous_vars <- c("feature", continuous_vars) |>
-        set_names(str_to_title(str_replace_all(., "[[:punct:]]", " ")))
-
+    continuous_vars <- c("feature", continuous_vars) 
+    
+    names(continuous_vars) <- 
+        str_to_title(str_replace_all(continuous_vars, "[[:punct:]]", " "))
 
     category_vars <- meta_types |>
         filter(meta_type == "category") |>
-        pull(vars) |>
-        set_names(str_to_title(str_replace_all(., "[^[:alnum:][:space:]\\.]", " ")))
+        pull(vars)
+    
+    names(category_vars) <-  
+        str_to_title(str_replace_all(
+            category_vars, 
+            "[^[:alnum:][:space:]\\.]", " "))
 
     plot_types <- list(category_vars = category_vars, continuous_vars = continuous_vars)
 
