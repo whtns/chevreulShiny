@@ -31,6 +31,8 @@ Imports:
     ensembldb,
     fs,
     future,
+    ggplotify,
+    ggpubr,
     glue,
     RSQLite,
     shinyFiles,

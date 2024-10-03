@@ -22,7 +22,7 @@ plotClustree <- function(id, object){
         experiment <- ifelse("integrated" %in% get_feature_types(object()), 
                              "integrated", "gene")
         object <- set_feature_type(object(), experiment)
-        clustree::clustree(object(), prefix = paste0(experiment, "_snn_res."))
+        clustree(object(), prefix = paste0(experiment, "_snn_res."))
     })
     })
 }
@@ -126,7 +126,7 @@ plotViolin <- function(id, object, featureType, organism_type){
         req(object())
         req(input$vlnGroup)
         exclude_trace_number <- 
-            length(unique(get_cell_metadata(object())[[input$vlnGroup]])) * 2
+            length(unique(get_colData(object())[[input$vlnGroup]])) * 2
 
         vln_plot <- ggplotly(vln_plot(), height = 700) |>
             style(opacity = 0.5) |>
@@ -189,11 +189,11 @@ plotHeatmap <- function(id, object, featureType, organism_type){
     moduleServer(id, function(input, output, session) {
         ns <- session$ns
 
-    # w <- Waiter$new("heatmap",
-    #     html = spin_loaders(id = 1, color = "black", 
-    #                         style = "position:relative;margin:auto;"),
-    #     color = transparent(.5)
-    # )
+    w <- Waiter$new("heatmap",
+        html = spin_loaders(id = 1, color = "black",
+                            style = "position:relative;margin:auto;"),
+        color = transparent(.5)
+    )
 
     observe({
         req(object())
@@ -215,7 +215,7 @@ plotHeatmap <- function(id, object, featureType, organism_type){
     output$colAnnoVarui <- renderUI({
         req(object())
 
-        formatted_col_names <- colnames(get_cell_metadata(object())) |>
+        formatted_col_names <- colnames(get_colData(object())) |>
             make_chevreul_clean_names()
 
         selectizeInput(ns("colAnnoVar"), "Column Annotation(s)",
@@ -233,7 +233,7 @@ plotHeatmap <- function(id, object, featureType, organism_type){
             session, 
             "dendroSelect", 
             choices = c(hclust_methods, 
-                        colnames(get_cell_metadata(object()))), 
+                        colnames(get_colData(object()))), 
             selected = "ward.D2")
     })
 
@@ -253,14 +253,13 @@ plotHeatmap <- function(id, object, featureType, organism_type){
                                    group.by = input$colAnnoVar, 
                                    assayName = input$assayName, 
                                    col_arrangement = input$dendroSelect)
-
-        hm <- draw(hm)
         return(hm)
     })
 
     output$heatmap <- renderPlot({
-        # w$show()
-        heatmap_plot()
+        req(heatmap_plot())
+        w$show()
+        draw(heatmap_plot())
     })
 
     output$downloadPlot <- downloadHandler(
@@ -511,7 +510,7 @@ plotDimRedui <- function(id) {
     ns <- NS(id)
     chevreulBox(
         title = "Embedding",
-        chevreulDropDownButton(ns("dimPlotSettings")),
+        chevreulDropDownButton(ns("dimPlotSettings"),
         selectizeInput(ns("embedding"), "Embedding", choices = NULL, 
                            selected = NULL),
         sliderInput(ns("dotSize"), "Size of Points in UMAP", min = 0.5, 
@@ -519,7 +518,7 @@ plotDimRedui <- function(id) {
         selectizeInput(ns("dim1"), "Dimension 1", choices = seq(1, 99), 
                            selected = 1),
         selectizeInput(ns("dim2"), "Dimension 2", choices = seq(1, 99), 
-                           selected = 2),
+                           selected = 2)),
         selectizeInput(ns("plottype"), "Variable to Plot", choices = NULL, 
                        multiple = TRUE),
         selectizeInput(ns("customFeature"), 
@@ -690,7 +689,7 @@ tableSelected <- function(id, object){
     output$brushtable <- renderDT({
         req(object())
         req(brush())
-        selected_meta <- data.frame(get_cell_metadata(object())[brush(), ])
+        selected_meta <- data.frame(get_colData(object())[brush(), ])
         datatable(selected_meta,
             extensions = "Buttons",
             selection = list(mode = "multiple", 
@@ -703,7 +702,7 @@ tableSelected <- function(id, object){
 
     selected_cells <- reactive({
         selected_rows <- input$brushtable_rows_selected
-        rownames(get_cell_metadata(object())[brush(), ])[selected_rows]
+        rownames(get_colData(object())[brush(), ])[selected_rows]
     })
 
     return(selected_cells)
@@ -874,7 +873,7 @@ diffex <- function(id, object, featureType, selected_cells,
     output$cc1 <- renderDT({
         req(custom_cluster1())
         selected_meta <- 
-            data.frame(get_cell_metadata(object())[custom_cluster1(), ])
+            data.frame(get_colData(object())[custom_cluster1(), ])
         datatable(selected_meta,
             extensions = "Buttons",
             options = list(dom = "Bft", buttons = c(
@@ -886,7 +885,7 @@ diffex <- function(id, object, featureType, selected_cells,
     output$cc2 <- renderDT({
         req(custom_cluster2())
         selected_meta <- 
-            data.frame(get_cell_metadata(object())[custom_cluster2(), ])
+            data.frame(get_colData(object())[custom_cluster2(), ])
         datatable(selected_meta,
             extensions = "Buttons",
             options = list(dom = "Bft", buttons = c(
@@ -973,7 +972,7 @@ diffex <- function(id, object, featureType, selected_cells,
     cluster_list <- reactive({
         if (input$diffex_scheme == "louvain") {
             object_meta <- 
-                get_cell_metadata(object())[[paste0(DefaultAssay(object()), 
+                get_colData(object())[[paste0(DefaultAssay(object()), 
                                                     "_snn_res.", 
                                                     input$objectResolution)]]
             cluster1_cells <- rownames(
@@ -1076,7 +1075,7 @@ chevreulMarkers <- function(id, object, plot_types, featureType){
         req(object())
         req(group_by())
 
-        choices <- levels(factor(get_cell_metadata(object())[[group_by()]]))
+        choices <- levels(factor(get_colData(object())[[group_by()]]))
 
         selectizeInput(ns("displayValues"), "Values to display", 
                        multiple = TRUE, choices = choices)
@@ -1263,7 +1262,7 @@ allTranscripts <- function(id, object, featureType, organism_type){
                                                     experiment = "gene"), 
                              selected = "NRL", server = TRUE)
 
-        formatted_col_names <- colnames(get_cell_metadata(object())) |>
+        formatted_col_names <- colnames(get_colData(object())) |>
             make_chevreul_clean_names()
 
         updateSelectizeInput(session, "groupby", choices = formatted_col_names, 
@@ -1682,7 +1681,7 @@ plotCoverage <- function(id, object, plot_types, proj_dir,
                                                     experiment = "gene"), 
                              server = TRUE)
 
-        formatted_col_names <- colnames(get_cell_metadata(object())) |>
+        formatted_col_names <- colnames(get_colData(object())) |>
             make_chevreul_clean_names()
 
         updateSelectizeInput(session, "varSelect", 
@@ -1711,7 +1710,7 @@ plotCoverage <- function(id, object, plot_types, proj_dir,
 
         plot_gene_coverage_by_var(
             genes_of_interest = input$geneSelect,
-            cell_metadata = get_cell_metadata(object()),
+            cell_metadata = get_colData(object()),
             bigwig_tbl = bigwig_tbl(),
             group_by = input$varSelect,
             values_of_interest = input$displayvalues,
@@ -1820,7 +1819,7 @@ reformatMetadataDR <- function(id, object,
 
     table_out <- reactive({
         req(object())
-        get_cell_metadata(object())
+        get_colData(object())
     })
 
     values <- reactiveValues(
@@ -1890,7 +1889,7 @@ reformatMetadataDR <- function(id, object,
                 return(NULL)
             }
 
-            object(set_cell_metadata(object(), read_csv(inFile$datapath)))
+            object(set_colData(object(), read_csv(inFile$datapath)))
         } else if (input$updateMethod == "spreadsheet") {
             reformatted_object <- 
                 propagate_spreadsheet_changes(values$data_active, object())

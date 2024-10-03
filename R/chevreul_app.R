@@ -114,7 +114,7 @@ chevreulApp <-
            futureMb = 13000,
            db_name = "single-cell-projects.db") {
 
-    db_path <- file.path(rappdirs::user_cache_dir(appname="chevreul"), db_name)
+    db_path <- file.path(user_cache_dir(appname="chevreul"), db_name)
 
     message(packageVersion("chevreul"))
     plan(strategy = "multicore", workers = 6)
@@ -489,11 +489,10 @@ chevreulApp <-
             req(integrationResults())
             integration_path <- paste0(integrationResults())
             proj_dir(integration_path)
-            newintegrated_project <- set_names(
-                integration_path,
-                path_file(integration_path)
-            )
-            newprojList <- c(projList(), newintegrated_project)
+
+        names(integration_path) <- path_file(integration_path)
+
+            newprojList <- c(projList(), integration_path)
         })
         observe({
             # print(newprojList())

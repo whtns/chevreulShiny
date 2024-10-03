@@ -1,3 +1,28 @@
+#' Unite metadata
+#'
+#' @param object A SingleCellExperiment object
+#' @param group_bys A feature or variable to combine
+#'
+#' @return a SingleCellExperiment object with Idents formed from concatenation of group_bys
+#' @export
+#'
+#' @examples
+#' 
+#' 
+#' data(small_example_dataset)
+#' unite_metadata(small_example_dataset, "Mutation_Status")
+#'
+unite_metadata <-
+    function(object, group_bys) {
+        newcolname <- paste(group_bys, collapse = "_by_")
+        newdata <- colData(object)[group_bys] |>
+            as.data.frame() |>
+            unite(!!newcolname, any_of(group_bys)) |>
+            deframe()
+        
+        return(object)
+    }
+
 #' Get Transcripts in object
 #'
 #' Get transcript ids in objects for one or more gene of interest
@@ -14,7 +39,6 @@ get_transcripts_from_object <- function(object, gene, organism = "human") {
     transcripts <- transcripts[transcripts %in% get_features(object, 
                                                              "transcript")]
 }
-
 
 #' Record Experiment Metadata
 #'
@@ -113,7 +137,6 @@ object_calcn <- function(object) {
     return(object)
 }
 
-
 #' Propagate Metadata Changes
 #'
 #' @param meta updated metadata
@@ -130,11 +153,11 @@ object_calcn <- function(object) {
 #'
 #' propagate_spreadsheet_changes(new_meta, small_example_dataset)
 propagate_spreadsheet_changes <- function(meta, object) {
-    meta <- meta %>%
-        tibble::rownames_to_column("cell") %>%
-        mutate(across(contains("snn"), as.factor)) %>%
-        mutate(across(where(is.ordered), ~ as.factor(as.character(.x)))) %>%
-        tibble::column_to_rownames("cell") %>%
+    meta <- meta |>
+        tibble::rownames_to_column("cell") |>
+        mutate(across(contains("snn"), as.factor)) |>
+        mutate(across(where(is.ordered), ~ as.factor(as.character(.x)))) |>
+        tibble::column_to_rownames("cell") |>
         identity()
 
     colData(object) <- DataFrame(meta)
@@ -197,22 +220,26 @@ update_project_db <- function(
     }
 
     con <- dbConnect(SQLite(), path(cache_location, sqlite_db))
-
+    
     projects_tbl <-
         dir_ls(projects_dir, glob = "*.here", recurse = TRUE, 
-               fail = FALSE, all = TRUE) %>%
-        path_dir(.) %>%
-        set_names(path_file(.)) %>%
-        enframe("project_name", "project_path") %>%
-        mutate(project_slug = str_remove(project_name, "_proj$")) %>%
-        mutate(project_type = path_file(path_dir(project_path))) %>%
+               fail = FALSE, all = TRUE) |>
+               path_dir() 
+        
+        names(projects_tbl) <- path_file(projects_tbl)
+        
+        projects_tbl <- 
+        projects_tbl |>
+        enframe("project_name", "project_path") |>
+        mutate(project_slug = str_remove(project_name, "_proj$")) |>
+        mutate(project_type = path_file(path_dir(project_path))) |>
         identity()
 
     current_projects_tbl <-
-        dbReadTable(con, "projects_tbl") %>%
-        filter(file.exists(project_path)) %>%
-        filter(!project_path %in% projects_tbl$project_path) %>%
-        bind_rows(projects_tbl) %>%
+        dbReadTable(con, "projects_tbl") |>
+        filter(file.exists(project_path)) |>
+        filter(!project_path %in% projects_tbl$project_path) |>
+        bind_rows(projects_tbl) |>
         distinct(project_path, .keep_all = TRUE)
 
     dbWriteTable(con, "projects_tbl", projects_tbl, overwrite = TRUE)
@@ -241,19 +268,20 @@ append_to_project_db <- function(
 
     con <- dbConnect(SQLite(), path(cache_location, sqlite_db))
 
+    names(new_project_path) <- path_file(new_project_path)
+
     projects_tbl <-
-        new_project_path %>%
-        set_names(path_file(.)) %>%
-        enframe("project_name", "project_path") %>%
-        mutate(project_slug = str_remove(project_name, "_proj$")) %>%
-        mutate(project_type = path_file(path_dir(project_path))) %>%
+        new_project_path |>
+        enframe("project_name", "project_path") |>
+        mutate(project_slug = str_remove(project_name, "_proj$")) |>
+        mutate(project_type = path_file(path_dir(project_path))) |>
         identity()
 
     current_projects_tbl <-
-        dbReadTable(con, "projects_tbl") %>%
-        filter(file.exists(project_path)) %>%
-        filter(!project_path %in% projects_tbl$project_path) %>%
-        bind_rows(projects_tbl) %>%
+        dbReadTable(con, "projects_tbl") |>
+        filter(file.exists(project_path)) |>
+        filter(!project_path %in% projects_tbl$project_path) |>
+        bind_rows(projects_tbl) |>
         distinct(project_path, .keep_all = TRUE)
 
     dbWriteTable(con, "projects_tbl", current_projects_tbl, overwrite = TRUE)
@@ -302,19 +330,23 @@ read_project_db <- function(
 make_bigwig_db <- function(new_project = NULL, 
                            cache_location = "~/.cache/chevreul/", 
                            sqlite_db = "bw-files.db") {
-    new_bigwigfiles <- dir_ls(new_project, glob = "*.bw", recurse = TRUE) %>%
-        set_names(path_file(.)) %>%
-        enframe("name", "bigWig") %>%
+    new_bigwigfiles <- dir_ls(new_project, glob = "*.bw", recurse = TRUE)
+
+    names(new_bigwigfiles) <- path_file(new_bigwigfiles)
+        
+    new_bigwigfiles <- 
+    new_bigwigfiles |>
+        enframe("name", "bigWig") |>
         mutate(sample_id = 
-                   str_remove(name, "_Aligned.sortedByCoord.out.*bw$")) %>%
-        filter(!str_detect(name, "integrated")) %>%
-        distinct(sample_id, .keep_all = TRUE) %>%
+                   str_remove(name, "_Aligned.sortedByCoord.out.*bw$")) |>
+        filter(!str_detect(name, "integrated")) |>
+        distinct(sample_id, .keep_all = TRUE) |>
         identity()
 
     con <- dbConnect(SQLite(), dbname = path(cache_location, sqlite_db))
 
     all_bigwigfiles <-
-        dbReadTable(con, "bigwigfiles") %>%
+        dbReadTable(con, "bigwigfiles") |>
         bind_rows(new_bigwigfiles)
 
     dbWriteTable(con, "bigwigfiles", all_bigwigfiles, overwrite = TRUE)
@@ -334,17 +366,17 @@ metadata_from_batch <- function(
         db_path = "single-cell-projects.db") {
     mydb <- dbConnect(SQLite(), path(projects_dir, db_path))
 
-    projects_tbl <- dbReadTable(mydb, "projects_tbl") %>%
+    projects_tbl <- dbReadTable(mydb, "projects_tbl") |>
         filter(!project_type %in% c("integrated_projects", "resources"))
 
     dbDisconnect(mydb)
 
     metadata <-
-        projects_tbl %>%
-        filter(project_slug == batch) %>%
-        pull(project_path) %>%
-        path("data") %>%
-        dir_ls(glob = "*.csv") %>%
+        projects_tbl |>
+        filter(project_slug == batch) |>
+        pull(project_path) |>
+        path("data") |>
+        dir_ls(glob = "*.csv") |>
         identity()
 }
 
@@ -360,12 +392,17 @@ metadata_from_batch <- function(
 #' 
 #' data(small_example_dataset)
 #' make_chevreul_clean_names(colnames(
-#' get_cell_metadata(small_example_dataset)))
+#' get_colData(small_example_dataset)))
 make_chevreul_clean_names <- function(myvec) {
-    myvec %>%
-        set_names(str_to_title(str_replace_all(., 
-                                               "[^[:alnum:][:space:]\\.]",
-                                               " ")))
+    
+    names(myvec) <- 
+    myvec |>
+    str_replace_all("[^[:alnum:][:space:]\\.]", " ") |>
+    str_to_title()
+    
+return(myvec)
+
+
 }
 
 #' Get metadata from object
@@ -407,25 +444,3 @@ save_object <- function(object, prefix = "unfiltered", proj_dir = getwd()) {
 
     return(object)
 }
-
-
-
-#' Plotly settings
-#'
-#' Change settings of a plotly plot
-#'
-#' @param plotly_plot  A plotly plot
-#' @param width Default set to '600'
-#' @param height Default set to '700'
-#'
-#' @noRd
-plotly_settings <- function(plotly_plot, width = 600, height = 700) {
-    plotly_plot |>
-        layout(dragmode = "lasso") |>
-        config(toImageButtonOptions = list(format = "svg", 
-                                           filename = "myplot", 
-                                           width = width, height = height)) |>
-        identity()
-}
-
-

@@ -72,7 +72,7 @@ reformatMetadataDR <- function(
 
     table_out <- reactive({
         req(object())
-        get_cell_metadata(object())
+        get_colData(object())
     })
 
     values <- reactiveValues(
@@ -145,7 +145,7 @@ reformatMetadataDR <- function(
                 return(NULL)
             }
 
-            object(set_cell_metadata(object(), read_csv(inFile$datapath)))
+            object(set_colData(object(), read_csv(inFile$datapath)))
         } else if (input$updateMethod == "spreadsheet") {
             object(propagate_spreadsheet_changes(values$data_active, object()))
         }
@@ -200,7 +200,7 @@ reformatMetadataDR <- function(
     )
 
     # SAVE AS
-    if (!hide & !is.null(save_as)) {
+    if (!hide && !is.null(save_as)) {
         do.call(
             write_fun,
             c(list(x_edit, save_as), write_args)
