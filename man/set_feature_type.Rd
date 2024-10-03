@@ -12,7 +12,7 @@ set_feature_type(object, feature_type)
 \item{feature_type}{feature type}
 }
 \value{
-an object with assigned feature type
+a SingleCellExperiment object with assigned feature type
 }
 \description{
 Set Feature Types

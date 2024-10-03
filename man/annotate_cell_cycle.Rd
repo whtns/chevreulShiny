@@ -2,7 +2,13 @@
 % Please edit documentation in R/regress_features.R
 \name{annotate_cell_cycle}
 \alias{annotate_cell_cycle}
-\title{Annotate Cell Cycle}
+\title{#' Regress SingleCellExperiment Object by Given Set of Genes
+#'
+#' @param object A object
+#'
+#' @return a SingleCellExperiment object with features regressed
+regress_cell_cycle <- function(object) {
+message("regressing objects by cell cycle")}
 \usage{
 annotate_cell_cycle(object)
 }
@@ -13,5 +19,17 @@ annotate_cell_cycle(object)
 a SingleCellExperiment object
 }
 \description{
-Annotate Cell Cycle for Gene and Transcript SingleCellExperiment Objects
+\if{html}{\out{<div class="sourceCode">}}\preformatted{if (dim(object)[2] < 100) \{
+    ctrl <- dim(object)[2] / 10
+\}
+if (!"Phase" \%in\% colnames(colData(object))) \{
+    object <- annotate_cell_cycle(object)
+\}
+if (!any(str_detect(c(mainExpName(object), altExpNames(object)), pattern = ".*regress.*"))) \{
+    dec.nocycle <- modelGeneVar(object, block = colData(object)[["Phase"]])
+    reg.nocycle <- regressBatches(object, batch = colData(object)[["Phase"]])
+}\if{html}{\out{</div>}}
+}
+\details{
+
 }

@@ -2,7 +2,7 @@
 #'
 #'
 #'
-#' @param object SingleCellExperiment object
+#' @param object a SingleCellExperiment object
 #' @param cluster1 cluster 1
 #' @param cluster2 cluster 2
 #' @param resolution resolution

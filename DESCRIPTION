@@ -11,8 +11,8 @@ Description: Tools for managing SingleCellExperiment objects as projects.
     Also included is a shiny app for visualization of pre-processed scRNA data.
     Supported by NIH grants R01CA137124 and R01EY026661 to David Cobrinik.
 License: MIT + file LICENSE
-URL: https://github.com/whtns/chevreul,
-    https://whtns.github.io/chevreul/
+URL: https://github.com/whtns/chevreulShiny,
+    https://whtns.github.io/chevreulShiny/
 Date: 2024-03-24
 BugReports: https://github.com/cobriniklab/chevreul/issues
 Depends:
@@ -32,11 +32,6 @@ Imports:
     fs,
     future,
     glue,
-    janitor,
-    httr,
-    megadepth,
-    methods,
-    rlang,
     RSQLite,
     shinyFiles,
     shinyhelper,
@@ -50,25 +45,18 @@ Imports:
     tibble,
     ggplot2,
     AnnotationDbi,
-    EnrichmentBrowser,
     grDevices,
-    graphics,
-    stats,
     utils,
-    cluster,
-    circlize,
-    bluster,
     EnsDb.Hsapiens.v86,
     EnsDb.Mmusculus.v79,
-    scales,
     readr,
     chevreuldata,
     S4Vectors,
     base,
-    grid,
-    forcats,
     rappdirs,
-    ExperimentHub
+    ExperimentHub,
+    chevreulPlot,
+    chevreulProcess
 Suggests:
     BiocStyle,
     knitr,

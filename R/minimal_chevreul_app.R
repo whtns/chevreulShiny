@@ -54,8 +54,8 @@ minimalChevreulApp <- function(single_cell_object = NULL,
                 tabName = "subsetObject", icon = icon("filter")
             ), menuItem("All Transcripts",
                 tabName = "allTranscripts", icon = icon("sliders-h")
-            ), menuItem("Regress Features",
-                tabName = "regressFeatures", icon = icon("eraser")
+            # ), menuItem("Regress Features",
+            #     tabName = "regressFeatures", icon = icon("eraser")
             ), menuItem("Technical Information",
                 tabName = "techInfo", icon = icon("cogs")
             )
@@ -157,21 +157,21 @@ minimalChevreulApp <- function(single_cell_object = NULL,
                     pathwayEnrichmentui("pathwayEnrichment")
                 )
             ),
+            # tabItem(
+            #     tabName = "regressFeatures",
+            #     fluidRow(
+            #         chevreulBox(
+            #             title = "Regress Features",
+            #             actionButton(
+            #                 "regressAction",
+            #                 "Regress Objects By Genes"
+            #             ),
+            #             width = 12
+            #         ) |>
+            #             default_helper(type = "markdown",
+            #                            content = "regressFeatures")
+            #     )),
             tabItem(
-                tabName = "regressFeatures",
-                fluidRow(
-                    chevreulBox(
-                        title = "Regress Features",
-                        actionButton(
-                            "regressAction",
-                            "Regress Objects By Genes"
-                        ),
-                        width = 12
-                    ) |>
-                        default_helper(type = "markdown",
-                                       content = "regressFeatures")
-                )
-            ), tabItem(
                 tabName = "techInfo",
                 h2("Technical Information"),
                 techInfoui("techInfo")
@@ -375,16 +375,16 @@ minimalChevreulApp <- function(single_cell_object = NULL,
             )
         })
 
-        observeEvent(input$regressAction, {
-            req(!is.null(object()))
-            showModal(modalDialog(
-                title = "Regressing out cell cycle effects",
-                "This process may take a minute or two!"
-            ))
-            regressed_object <- regress_cell_cycle(object())
-            object(regressed_object)
-            removeModal()
-        })
+        # observeEvent(input$regressAction, {
+        #     req(!is.null(object()))
+        #     showModal(modalDialog(
+        #         title = "Regressing out cell cycle effects",
+        #         "This process may take a minute or two!"
+        #     ))
+        #     regressed_object <- regress_cell_cycle(object())
+        #     object(regressed_object)
+        #     removeModal()
+        # })
 
         techInfo( "techInfo", object)
     }

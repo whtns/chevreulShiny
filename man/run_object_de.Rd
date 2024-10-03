@@ -15,7 +15,7 @@ run_object_de(
 )
 }
 \arguments{
-\item{object}{SingleCellExperiment object}
+\item{object}{a SingleCellExperiment object}
 
 \item{cluster1}{cluster 1}
 

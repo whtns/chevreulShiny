@@ -21,7 +21,8 @@ list_plot_types <- function(object) {
             var_type %in% c("integer", "numeric") ~ "continuous",
             var_type %in% c("character", "factor", "logical") ~ "category"
         )) |>
-        mutate(meta_type = ifelse(meta_type == "continuous" & num_levels < 30, "category", meta_type)) |>
+        mutate(meta_type = ifelse(meta_type == "continuous" & num_levels < 30, 
+                                  "category", meta_type)) |>
         filter(num_levels > 1) |>
         identity()
 
@@ -43,7 +44,8 @@ list_plot_types <- function(object) {
             category_vars, 
             "[^[:alnum:][:space:]\\.]", " "))
 
-    plot_types <- list(category_vars = category_vars, continuous_vars = continuous_vars)
+    plot_types <- list(category_vars = category_vars, 
+                       continuous_vars = continuous_vars)
 
 
 
@@ -162,7 +164,7 @@ get_feature_types <- function(object) {
 #'
 #' @param object a SingleCellExperiment object
 #' @param feature_type feature type
-#' @return an object with assigned feature type
+#' @return a SingleCellExperiment object with assigned feature type
 #' @export
 #'
 #' @examples
@@ -171,7 +173,8 @@ get_feature_types <- function(object) {
 #' set_feature_type(small_example_dataset, "transcript")
 set_feature_type <- function(object, feature_type) {
     if (feature_type %in% altExpNames(object)) {
-        object <- swapAltExp(object, feature_type, saved = mainExpName(object), withColData = TRUE)
+        object <- swapAltExp(object, feature_type, 
+                             saved = mainExpName(object), withColData = TRUE)
     }
     return(object)
 }
