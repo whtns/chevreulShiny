@@ -10,9 +10,10 @@
 #' @export
 #'
 #' @examples
-#' data("tiny_sce")
-#' minimalChevreulApp(tiny_sce)
-#'
+#' \donttest{
+#'   data("tiny_sce")
+#'   minimalChevreulApp(tiny_sce)
+#' }
 minimalChevreulApp <- function(single_cell_object = NULL,
                           appTitle = NULL,
                           organism_type = "human",
@@ -300,7 +301,7 @@ minimalChevreulApp <- function(single_cell_object = NULL,
             )
         })
 
-        diffex_results <- diffex( "diffex", object, featureType,
+        diffex("diffex", object, featureType,
             diffex_selected_cells
         )
         
@@ -386,7 +387,7 @@ minimalChevreulApp <- function(single_cell_object = NULL,
         #     removeModal()
         # })
 
-        techInfo( "techInfo", object)
+        techInfo("techInfo", object)
     }
     shinyApp(ui, server, enableBookmarking = "server")
 }

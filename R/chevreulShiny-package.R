@@ -3,7 +3,6 @@
 
 ## usethis namespace: start
 #' @importFrom chevreuldata human_gene_transcript_sce
-#' @importFrom chevreulProcess propagate_spreadsheet_changes
 #' @importFrom clustree clustree
 #' @importFrom ComplexHeatmap draw
 #' @importFrom ComplexHeatmap Heatmap
@@ -89,6 +88,7 @@
 #' @importFrom shinyjs runcodeUI
 #' @importFrom shinyjs useShinyjs
 #' @importFrom shinyWidgets prettyRadioButtons
+#' @importFrom stats runif
 #' @importFrom stringr str_detect
 #' @importFrom stringr str_remove
 #' @importFrom stringr str_replace

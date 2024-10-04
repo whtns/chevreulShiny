@@ -30,7 +30,8 @@ a minimal chevreul app
 Create a minimal chevreul app using SingleCellExperiment input
 }
 \examples{
-data("tiny_sce")
-minimalChevreulApp(tiny_sce)
-
+\donttest{
+  data("tiny_sce")
+  minimalChevreulApp(tiny_sce)
+}
 }
