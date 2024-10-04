@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 ```
 
 
-# Chevreul
+# chevreulShiny
 
 This package includes a set of Shiny apps for exploring single cell RNA datasets processed as a SingleCellExperiment
 
@@ -30,27 +30,29 @@ There are also convenient functions for:
 -   Cell cycle state regression and labeling
 
 > [!WARNING]
-> Chevreul was designed for full-length smart-seq based single cell data. Default settings may not be appropriate for droplet (10x) data, though most can be adjusted. Keep in mind best practices regarding normalization, dimensional reduction, etc. when using. 
+> chevreulShiny was designed for full-length smart-seq based single cell data. Default settings may not be appropriate for droplet (10x) data, though most can be adjusted. Keep in mind best practices regarding normalization, dimensional reduction, etc. when using. 
 
 ## Installation
 
-You can install the released version of chevreul from <a href="https://github.com/whtns/chevreul" target="_blank" rel="noopener noreferrer">github</a> with:
+You can install the released version of chevreulShiny from <a href="https://github.com/whtns/chevreulShiny" target="_blank" rel="noopener noreferrer">github</a> with:
 
 ### Install locally and run in three steps:
 
-You can install chevreul locally using the following steps:
+You can install chevreulShiny locally using the following steps:
 
 ```{r, eval=FALSE}
 install.packages("devtools")
-devtools::install_github("whtns/chevreul")
-chevreul::create_project_db()
+devtools::install_github("whtns/chevreulShiny")
+library(chevreulShiny)
+create_project_db()
 ```
 
 You can also customize the location of the app using these steps:
 
 ```{r, eval=FALSE}
 devtools::install_github("whtns/chevreul")
-chevreul::create_project_db(destdir = "/your/path/to/app")
+library(chevreulShiny)
+create_project_db(destdir = "/your/path/to/app")
 ```
 
 

@@ -1,5 +1,5 @@
 ---
-title: "Chevreul"
+title: "chevreulShiny"
 author: 
   - name: Kevin Stachelek
     affiliation:
@@ -17,7 +17,7 @@ output:
     toc_depth: 2
     code_folding: show
 date: "`r doc_date()`"
-package: "`r pkg_ver('chevreul')`"
+package: "`r pkg_ver('chevreulShiny')`"
 vignette: >
   %\VignetteIndexEntry{Preprocessing}
   %\VignetteEngine{knitr::rmarkdown}
@@ -40,31 +40,31 @@ knitr::opts_chunk$set(
 
 # Basics
 
-## Install `chevreul`
+## Install `chevreulShiny`
 
 `R` is an open-source statistical environment which can be easily modified 
-to enhance its functionality via packages. `r Biocpkg("chevreul")` is a `R` 
+to enhance its functionality via packages. `r Biocpkg("chevreulShiny")` is a `R` 
 package available via the [Bioconductor](http://bioconductor.org) repository 
 for packages. `R` can be installed on any operating system from 
 [CRAN](https://cran.r-project.org/) after which you can install 
-`r Biocpkg("chevreul")` by using the following commands in your `R` session:
+`r Biocpkg("chevreulShiny")` by using the following commands in your `R` session:
 
 ```{r "install", eval = FALSE}
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
     install.packages("BiocManager")
 }
 
-BiocManager::install("chevreul")
+BiocManager::install("chevreulShiny")
 
 ```
 
 ## Required knowledge
 
-The `r Biocpkg("chevreul")` package is designed for single-cell RNA sequencing
+The `r Biocpkg("chevreulShiny")` package is designed for single-cell RNA sequencing
  data. The functions included within this package are derived from other 
  packages that have implemented the infrastructure needed for RNA-seq data
   processing and analysis. Packages that have been instrumental in the 
-  development of `r Biocpkg("chevreul")` include, 
+  development of `r Biocpkg("chevreulShiny")` include, 
   `Biocpkg("SummarizedExperiment")` and `Biocpkg("scater")`.
 
 ## Asking for help
@@ -72,27 +72,13 @@ The `r Biocpkg("chevreul")` package is designed for single-cell RNA sequencing
 `R` and `Bioconductor` have a steep learning curve so it is critical to 
 learn where to ask for help. The 
 [Bioconductor support site](https://support.bioconductor.org/) is the main 
-resource for getting help: remember to use the `chevreul` tag and check 
-[the older posts](https://support.bioconductor.org/tag/chevreul/). 
+resource for getting help: remember to use the `chevreulShiny` tag and check 
+[the older posts](https://support.bioconductor.org/tag/chevreulShiny/). 
 
-## Citing `chevreul`
 
-We hope that `r Biocpkg("chevreul")` will be useful for your research. 
-Please use the following information to cite the package and the overall 
-approach. Thank you!
+# Quick start to using `chevreulShiny`
 
-```{r "citation"}
-## Citation info
-citation("chevreul")
-```
-
-Here is an example of you can cite your package inside the vignette:
-
-* `r Biocpkg("chevreul")` `r Citep(bib[["chevreul"]])`
-
-# Quick start to using `chevreul`
-
-The `chevreul` package contains functions to preprocess, cluster, visualize, and 
+The `chevreulShiny` package contains functions to preprocess, cluster, visualize, and 
 perform other analyses on scRNA-seq data. It also contains a shiny app for easy 
 visualization and analysis of scRNA data.
 
@@ -110,7 +96,7 @@ reduction of Raw Sequencing Data.
 
 ```{r, message=FALSE}
 
-library("chevreul")
+library("chevreulShiny")
 
 # Load the data
 library(chevreuldata)
@@ -120,7 +106,7 @@ chevreul_sce
 
 ## Shiny app
 
-Chevreul includes a shiny app for exploratory scRNA data analysis and 
+chevreulShiny includes a shiny app for exploratory scRNA data analysis and 
 visualization which can be accessed via
 
 ```{r "start", message=FALSE, eval = FALSE}

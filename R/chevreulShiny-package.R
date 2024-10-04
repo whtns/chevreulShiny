@@ -3,36 +3,6 @@
 
 ## usethis namespace: start
 #' @importFrom chevreuldata human_gene_transcript_sce
-#' @importFrom chevreulPlot make_complex_heatmap
-#' @importFrom chevreulPlot plot_all_transcripts
-#' @importFrom chevreulPlot plot_feature_on_embedding
-#' @importFrom chevreulPlot plot_gene_coverage_by_var 
-#' @importFrom chevreulPlot plot_marker_features
-#' @importFrom chevreulPlot plot_colData_histogram
-#' @importFrom chevreulPlot plot_transcript_composition
-#' @importFrom chevreulPlot plot_colData_on_embedding
-#' @importFrom chevreulPlot plot_violin
-#' @importFrom chevreulPlot plotly_settings
-#' @importFrom chevreulProcess make_chevreul_clean_names
-#' @importFrom chevreulProcess record_experiment_data
-#' @importFrom chevreulProcess build_bigwig_db
-#' @importFrom chevreulProcess genes_to_transcripts
-#' @importFrom chevreulProcess load_bigwigs
-#' @importFrom chevreulProcess reintegrate_object
-#' @importFrom chevreulProcess object_pipeline
-#' @importFrom chevreulProcess regress_cell_cycle
-#' @importFrom chevreulProcess transcripts_to_genes
-#' @importFrom chevreulProcess get_colData
-#' @importFrom chevreulProcess get_feature_types
-#' @importFrom chevreulProcess get_features
-#' @importFrom chevreulProcess get_variable_features
-#' @importFrom chevreulProcess list_plot_types
-#' @importFrom chevreulProcess query_experiment
-#' @importFrom chevreulProcess retrieve_experiment
-#' @importFrom chevreulProcess run_object_de
-#' @importFrom chevreulProcess set_colData
-#' @importFrom chevreulProcess set_feature_type
-#' @importFrom chevreulProcess object_calcn
 #' @importFrom chevreulProcess propagate_spreadsheet_changes
 #' @importFrom clustree clustree
 #' @importFrom ComplexHeatmap draw
@@ -76,6 +46,7 @@
 #' @importFrom glue glue
 #' @importFrom grDevices dev.off 
 #' @importFrom grDevices pdf
+#' @importFrom methods is
 #' @importFrom plotly event_data
 #' @importFrom plotly ggplotly
 #' @importFrom plotly partial_bundle
@@ -148,5 +119,7 @@
 #' @import dplyr
 #' @import stringr
 #' @import tidyr
+#' @import chevreulProcess
+#' @import chevreulPlot
 NULL
 
