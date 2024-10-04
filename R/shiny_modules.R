@@ -28,7 +28,7 @@ plotClustree <- function(id, object){
 }
 
 
-#' Title
+#' plotViolin UI
 #'
 #' @param id
 #'
@@ -98,7 +98,7 @@ plotViolin <- function(id, object, featureType, organism_type){
     output$vln_group <- renderUI({
         req(object())
         selectizeInput(ns("vlnGroup"), "Grouping variable",
-            choices = metadata_from_object(object()), selected = "batch"
+            choices = colnames(get_colData(object())), selected = "batch"
         )
     })
 
@@ -107,7 +107,7 @@ plotViolin <- function(id, object, featureType, organism_type){
         req(input$vlnGroup)
 
         vln_plot <-
-            plot_violin(object(), plot_var = input$vlnGroup, 
+            plot_violin(object(), plot_colData_on_embedding = input$vlnGroup, 
                         features = input$customFeature, slot = input$slot)
     })
 
@@ -615,7 +615,7 @@ plotDimRed <- function(id, object, plot_types, featureType,
 
             selected_plot(newcolname)
 
-            plot_var(cross_plot_object,
+            plot_colData_on_embedding(cross_plot_object,
                 dims = c(input$dim1, input$dim2),
                 embedding = input$embedding, group = NULL, 
                 pt.size = input$dotSize,
@@ -623,7 +623,7 @@ plotDimRed <- function(id, object, plot_types, featureType,
             )
         } else {
             if (input$plottype == "feature") {
-                plot_feature(object(),
+                plot_feature_on_embedding(object(),
                     dims = c(
                         input$dim1,
                         input$dim2
@@ -632,7 +632,7 @@ plotDimRed <- function(id, object, plot_types, featureType,
                     return_plotly = TRUE
                 )
             } else if (input$plottype %in% plot_types()$continuous_vars) {
-                plot_feature(object(),
+                plot_feature_on_embedding(object(),
                     dims = c(
                         input$dim1,
                         input$dim2
@@ -641,7 +641,7 @@ plotDimRed <- function(id, object, plot_types, featureType,
                     return_plotly = TRUE
                 )
             } else if (input$plottype %in% plot_types()$category_vars) {
-                plot_var(object(),
+                plot_colData_on_embedding(object(),
                     dims = c(input$dim1, input$dim2),
                     embedding = input$embedding, group = input$plottype, 
                     pt.size = input$dotSize,
@@ -928,30 +928,33 @@ diffex <- function(id, object, featureType, selected_cells,
         ), class = "display"
     )
 
-    Volcano <- reactive({
-        de_results()[[input$diffex_method]] |>
+        Volcano <- reactive({
+        de_input <- de_results()[[input$diffex_method]] |>
             distinct(symbol, .keep_all = TRUE) |>
-            column_to_rownames("symbol") |>
-            (\(data) EnhancedVolcano(
-                data,
-                lab = rownames(data),
+            column_to_rownames("symbol")
+
+        EnhancedVolcano(
+            de_input,
+                lab = rownames(de_input),
                 x = "avg_log2FC",
                 y = "p_val_adj",
                 pCutoff = 1 / (10^as.numeric(input$pValCutoff)),
                 FCcutoff = as.numeric(input$FCcutoff)
-            ))()
+            )
     })
+
     # Volcano <- reactive({
     #     de_results()[[input$diffex_method]] |>
     #         distinct(symbol, .keep_all = TRUE) |>
     #         column_to_rownames("symbol") |>
-    #         EnhancedVolcano(
+    #         (\(data) EnhancedVolcano(
+    #             data,
     #             lab = rownames(data),
     #             x = "avg_log2FC",
     #             y = "p_val_adj",
     #             pCutoff = 1 / (10^as.numeric(input$pValCutoff)),
     #             FCcutoff = as.numeric(input$FCcutoff)
-    #         )
+    #         ))()
     # })
 
     output$volcano <- renderPlot({
@@ -1082,7 +1085,7 @@ chevreulMarkers <- function(id, object, plot_types, featureType){
     })
 
     marker_plot_return <- eventReactive(input$plotDots, {
-        plot_markers(object(), group_by = group_by(), 
+        plot_marker_features(object(), group_by = group_by(), 
                      num_markers = input$num_markers, 
                      selected_values = input$displayValues, 
                      marker_method = input$markerMethod, 
@@ -1170,11 +1173,11 @@ plotReadCount <- function(id, object, plot_types){
 
             louvain_resolution <- paste0(experiment, "_snn_res.", 
                                          input$resolution)
-            plot_readcount(object(), group_by = input$group_by, 
+            plot_colData_histogram(object(), group_by = input$group_by, 
                            fill_by = louvain_resolution, 
                            yscale = input$yScale, return_plotly = TRUE)
         } else if (input$colorby %in% flatten_chr(plot_types())) {
-            plot_readcount(object(), group_by = input$group_by, 
+            plot_colData_histogram(object(), group_by = input$group_by, 
                            fill_by = input$colorby, yscale = input$yScale, 
                            return_plotly = TRUE)
         }

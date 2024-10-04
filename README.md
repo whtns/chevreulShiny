@@ -45,17 +45,6 @@ devtools::install_github("whtns/chevreul")
 chevreul::create_project_db(destdir = "/your/path/to/app")
 ```
 
-## Getting Started
-
-First, load Chevreul and all other packages required
-
-``` r
-library(chevreul)
-library(SingleCellExperiment)
-library(tidyverse)
-library(ggraph)
-```
-
 ## TLDR
 
 Chevreul provides a single command to:
@@ -83,5 +72,5 @@ clustered_object <- clustering_workflow(chevreul_sce,
 ## Get a first look at a processed dataset using an interactive shiny app
 
 ``` r
-minimalSceApp(chevreul_sce)
+minimalChevreulApp(chevreul_sce)
 ```

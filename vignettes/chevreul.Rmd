@@ -28,41 +28,26 @@ vignette: >
 knitr::opts_chunk$set(
     collapse = TRUE,
     comment = "#>",
-    # dev.args = list(png = list(type = "cairo")),
     dpi = 900,
     out.width = "100%",
     message = FALSE,
     warning = FALSE,
-    crop = NULL ## Related to https://stat.ethz.ch/pipermail/bioc-devel/2020-April/016656.html
-)
+    crop = NULL)
+
+## Related to https://stat.ethz.ch/pipermail/bioc-devel/2020-April/016656.html
 ```
 
-
-```{r vignetteSetup, echo=FALSE, message=FALSE, warning = FALSE}
-## Track time spent on making the vignette
-startTime <- Sys.time()
-
-## Bib setup
-library("RefManageR")
-
-## Write bibliography information
-bib <- c(
-    R = citation(),
-    BiocStyle = citation("BiocStyle")[1],
-    knitr = citation("knitr")[1],
-    RefManageR = citation("RefManageR")[1],
-    rmarkdown = citation("rmarkdown")[1],
-    sessioninfo = citation("sessioninfo")[1],
-    testthat = citation("testthat")[1],
-    chevreul = citation("chevreul")[1]
-)
-```
 
 # Basics
 
 ## Install `chevreul`
 
-`R` is an open-source statistical environment which can be easily modified to enhance its functionality via packages. `r Biocpkg("chevreul")` is a `R` package available via the [Bioconductor](http://bioconductor.org) repository for packages. `R` can be installed on any operating system from [CRAN](https://cran.r-project.org/) after which you can install `r Biocpkg("chevreul")` by using the following commands in your `R` session:
+`R` is an open-source statistical environment which can be easily modified 
+to enhance its functionality via packages. `r Biocpkg("chevreul")` is a `R` 
+package available via the [Bioconductor](http://bioconductor.org) repository 
+for packages. `R` can be installed on any operating system from 
+[CRAN](https://cran.r-project.org/) after which you can install 
+`r Biocpkg("chevreul")` by using the following commands in your `R` session:
 
 ```{r "install", eval = FALSE}
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
@@ -75,15 +60,26 @@ BiocManager::install("chevreul")
 
 ## Required knowledge
 
-The `r Biocpkg("chevreul")` package is designed for single-cell RNA sequencing data. The functions included within this package are derived from other packages that have implemented the infrastructure needed for RNA-seq data processing and analysis. Packages that have been instrumental in the development of `r Biocpkg("chevreul")` include, `Biocpkg("SummarizedExperiment")` and `Biocpkg("scater")`.
+The `r Biocpkg("chevreul")` package is designed for single-cell RNA sequencing
+ data. The functions included within this package are derived from other 
+ packages that have implemented the infrastructure needed for RNA-seq data
+  processing and analysis. Packages that have been instrumental in the 
+  development of `r Biocpkg("chevreul")` include, 
+  `Biocpkg("SummarizedExperiment")` and `Biocpkg("scater")`.
 
 ## Asking for help
 
-`R` and `Bioconductor` have a steep learning curve so it is critical to learn where to ask for help. The [Bioconductor support site](https://support.bioconductor.org/) is the main resource for getting help: remember to use the `chevreul` tag and check [the older posts](https://support.bioconductor.org/tag/chevreul/). 
+`R` and `Bioconductor` have a steep learning curve so it is critical to 
+learn where to ask for help. The 
+[Bioconductor support site](https://support.bioconductor.org/) is the main 
+resource for getting help: remember to use the `chevreul` tag and check 
+[the older posts](https://support.bioconductor.org/tag/chevreul/). 
 
 ## Citing `chevreul`
 
-We hope that `r Biocpkg("chevreul")` will be useful for your research. Please use the following information to cite the package and the overall approach. Thank you!
+We hope that `r Biocpkg("chevreul")` will be useful for your research. 
+Please use the following information to cite the package and the overall 
+approach. Thank you!
 
 ```{r "citation"}
 ## Citation info
@@ -96,13 +92,18 @@ Here is an example of you can cite your package inside the vignette:
 
 # Quick start to using `chevreul`
 
-The `chevreul` package contains functions to preprocess, cluster, visualize, and perform other analyses on scRNA-seq data. It also contains a shiny app for easy visualization and analysis of scRNA data.
+The `chevreul` package contains functions to preprocess, cluster, visualize, and 
+perform other analyses on scRNA-seq data. It also contains a shiny app for easy 
+visualization and analysis of scRNA data.
 
-`chvereul` uses SingelCellExperiment (SCE) object type (from `r Biocpkg("SingleCellExperiment")`) to store expression and other metadata from single-cell experiments. 
+`chvereul` uses SingelCellExperiment (SCE) object type 
+(from `r Biocpkg("SingleCellExperiment")`) 
+to store expression and other metadata from single-cell experiments. 
 
 This package features functions capable of:
 
-* Performing Clustering at a range of resolutions and Dimensional reduction of Raw Sequencing Data.
+* Performing Clustering at a range of resolutions and Dimensional 
+reduction of Raw Sequencing Data.
 * Visualizing scRNA data using different plotting functions.
 * Integration of multiple datasets for consistent analyses. 
 * Cell cycle state regression and labeling.
@@ -116,72 +117,24 @@ library(chevreuldata)
 chevreul_sce <- human_gene_transcript_sce()
 chevreul_sce
 ```
-## Setting up
-
-We start with a count matrix containing expression count data and a table of corresponding cell metadata.
-
-```{r, eval=TRUE}
-# Object count matrix
-human_count <- counts(chevreul_sce)
-human_count[1:5, 1:5] |> as.matrix() |> knitr::kable(format = "pipe")
-
-# Object metadata
-human_meta <- colData(chevreul_sce) |> as.data.frame()
-human_meta[1:5, 1:5] |> as.matrix() |> knitr::kable(format = "pipe")
-```
-
-Then using these 2 datasets, we create a SingleCellExperiment object as shown below.
-```{r}
-myobject <- SingleCellExperiment::SingleCellExperiment(
-    assays = list(counts = counts(chevreul_sce)),
-    colData = colData(chevreul_sce),
-    mainExpName = "gene"
-)
-
-myobject
-```
 
 ## Shiny app
 
-Chevreul includes a shiny app for exploratory scRNA data analysis and visualization which can be accessed via
+Chevreul includes a shiny app for exploratory scRNA data analysis and 
+visualization which can be accessed via
 
 ```{r "start", message=FALSE, eval = FALSE}
 
-minimalSceApp(chevreul_sce)
+minimalChevreulApp(chevreul_sce)
 
 ```
 
-Note: the SCE object must be pre-processed and integrated (if required) prior to building the shiny app.
+Note: the SCE object must be pre-processed and integrated (if required) 
+prior to building the shiny app.
 
-The app is arranged into different sections each of which performs different function. More information about individual sections of the app is provided within the "shiny app" vignette. 
-
-# Reproducibility
-
-The `r Biocpkg("chevreul")` package `r Citep(bib[["chevreul"]])` was made possible thanks to:
-
-* R `r Citep(bib[["R"]])`
-* `r Biocpkg("BiocStyle")` `r Citep(bib[["BiocStyle"]])`
-* `r CRANpkg("knitr")` `r Citep(bib[["knitr"]])`
-* `r CRANpkg("RefManageR")` `r Citep(bib[["RefManageR"]])`
-* `r CRANpkg("rmarkdown")` `r Citep(bib[["rmarkdown"]])`
-* `r CRANpkg("sessioninfo")` `r Citep(bib[["sessioninfo"]])`
-* `r CRANpkg("testthat")` `r Citep(bib[["testthat"]])`
-
-This package was developed using `r BiocStyle::Biocpkg("biocthis")`.
-
-
-Code for creating the vignette
-
-```{r createVignette, eval=FALSE}
-## Create the vignette
-library("rmarkdown")
-system.time(render("chevreul.Rmd", "BiocStyle::html_document"))
-
-## Extract the R code
-library("knitr")
-knit("chevreul.Rmd", tangle = TRUE)
-```
-
+The app is arranged into different sections each of which performs 
+different function. More information about individual sections of the 
+app is provided within the "shiny app" vignette. 
 
 `R` session information.
 
@@ -192,16 +145,3 @@ options(width = 120)
 session_info()
 ```
 
-
-
-# Bibliography
-
-This vignette was generated using `r Biocpkg("BiocStyle")` `r Citep(bib[["BiocStyle"]])`
-with `r CRANpkg("knitr")` `r Citep(bib[["knitr"]])` and `r CRANpkg("rmarkdown")` `r Citep(bib[["rmarkdown"]])` running behind the scenes.
-
-Citations made with `r CRANpkg("RefManageR")` `r Citep(bib[["RefManageR"]])`.
-
-```{r vignetteBiblio, results = "asis", echo = FALSE, warning = FALSE, message = FALSE}
-## Print bibliography
-PrintBibliography(bib, .opts = list(hyperlink = "to.doc", style = "html"))
-```
