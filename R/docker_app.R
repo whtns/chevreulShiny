@@ -7,7 +7,6 @@
 #' @param db_name  path to sqlite database listing bigwig files for cells 
 #'
 #' @return a dockerized shiny app
-#' @export
 dockerChevreulApp <- function(
         object = NULL,
         appTitle = NULL,

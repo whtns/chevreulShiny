@@ -24,7 +24,6 @@ Depends:
     chevreulProcess,
     chevreulPlot
 Imports:
-    base,
     chevreuldata,
     clustree,
     ComplexHeatmap,
@@ -53,6 +52,7 @@ Imports:
     shinyhelper,
     shinyjs,
     shinyWidgets,
+    stats,
     stringr,
     SummarizedExperiment,
     tibble,
