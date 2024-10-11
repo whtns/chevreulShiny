@@ -10,10 +10,12 @@
 #' @export
 #'
 #' @examples
-#' \donttest{
+#' 
+#' if (interactive() ) {
 #'   data("tiny_sce")
 #'   minimalChevreulApp(tiny_sce)
 #' }
+#' 
 minimalChevreulApp <- function(single_cell_object = NULL,
                           appTitle = NULL,
                           organism_type = "human",
