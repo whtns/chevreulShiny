@@ -1,6 +1,6 @@
 Type: Package
 Package: chevreulShiny
-Title: Tools for managing SingleCellExperiment objects as projects
+Title: Shiny App for analyzing SingleCellExperiment objects as projects
 Version: 0.99.1
 Authors@R: c(
     person("Kevin", "Stachelek", , "kevin.stachelek@gmail.com", 
@@ -15,7 +15,7 @@ License: MIT + file LICENSE
 URL: https://github.com/whtns/chevreulShiny,
     https://whtns.github.io/chevreulShiny/
 Date: 2024-03-24
-BugReports: https://github.com/cobriniklab/chevreul/issues
+BugReports: https://github.com/cobriniklab/chevreulShiny/issues
 Depends:
     R (>= 4.4.0),
     SingleCellExperiment,
