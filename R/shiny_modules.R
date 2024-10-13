@@ -1008,7 +1008,8 @@ diffex <- function(id, object, featureType, selected_cells,
                 x = "avg_log2FC",
                 y = "p_val_adj",
                 pCutoff = 1 / (10^as.numeric(input$pValCutoff)),
-                FCcutoff = as.numeric(input$FCcutoff)
+                FCcutoff = as.numeric(input$FCcutoff),
+                raster = TRUE
             )
         })
 
@@ -1037,7 +1038,7 @@ diffex <- function(id, object, featureType, selected_cells,
             content = function(file) {
                 ggsave(file, Volcano() +
                     theme_pubr(base_size = 20, x.text.angle = 45),
-                width = 16, height = 12
+                width = 8, height = 6
                 )
             }
         )

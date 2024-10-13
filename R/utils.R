@@ -279,3 +279,77 @@ save_object <- function(object, prefix = "unfiltered", proj_dir = getwd()) {
 
     return(object)
 }
+
+#' Collate list of variables to be plotted
+#'
+#' @param object a SingleCellExperiment object
+#'
+#' @return plot_types a list of category_vars or continuous_vars
+#' @export
+#' @examples
+#' 
+#' data(small_example_dataset)
+#' list_plot_types(small_example_dataset)
+list_plot_types <- function(object) {
+    meta_types <- tibble(
+        vars = colnames(colData(object)),
+        var_type = map_chr(colData(object), class),
+        num_levels = unlist(map(colData(object), ~ length(unique(.x))))
+    )
+    
+    meta_types <- meta_types |>
+        # filter(!grepl("_snn_res", vars)) |>
+        mutate(meta_type = case_when(
+            var_type %in% c("integer", "numeric") ~ "continuous",
+            var_type %in% c("character", "factor", "logical") ~ "category"
+        )) |>
+        mutate(meta_type = ifelse(meta_type == "continuous" & num_levels < 30, "category", meta_type)) |>
+        filter(num_levels > 1) |>
+        identity()
+    
+    continuous_vars <- meta_types |>
+        filter(meta_type == "continuous") |>
+        pull(vars)
+    
+    continuous_vars <- c("feature", continuous_vars)
+    
+    names(continuous_vars) <- 
+        str_to_title(str_replace_all(continuous_vars, "[[:punct:]]", " "))
+    
+    category_vars <- meta_types |>
+        filter(meta_type == "category") |>
+        pull(vars)
+    
+    names(category_vars) <-  
+        str_to_title(str_replace_all(
+            category_vars, 
+            "[^[:alnum:][:space:]\\.]", " "))
+    
+    plot_types <- list(category_vars = category_vars, continuous_vars = continuous_vars)
+    
+    
+    
+    return(plot_types)
+}
+
+#' Clean Vector of Chevreul Names
+#'
+#' Cleans names of objects provided in a vector form
+#'
+#' @param myvec A vector of object names
+#'
+#' @return a clean vector of object names
+#' @export
+#' @examples
+#' 
+#' data(small_example_dataset)
+#' make_chevreul_clean_names(colnames(
+#' get_colData(small_example_dataset)))
+make_chevreul_clean_names <- function(myvec) {
+    names(myvec) <- 
+        myvec |> 
+        str_replace_all("[^[:alnum:][:space:]\\.]", " ") |> 
+        str_to_title()
+    
+    return(myvec)
+}
