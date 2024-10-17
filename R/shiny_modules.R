@@ -80,19 +80,7 @@ plotViolin <- function(id, object, featureType, organism_type) {
 
         prefill_feature <- reactive({
             req(featureType())
-            if (featureType() == "transcript") {
-                if (organism_type() == "human") {
-                    "ENST00000488147"
-                } else if (organism_type() == "mouse") {
-                    "ENSG00000488147"
-                }
-            } else if (featureType() == "gene") {
-                if (organism_type() == "human") {
-                    "NRL"
-                } else if (organism_type() == "mouse") {
-                    "NRL"
-                }
-            }
+            switch(featureType(), transcript = "ENST00000488147", gene = "NRL")
         })
         observe({
             req(prefill_feature())
@@ -116,7 +104,7 @@ plotViolin <- function(id, object, featureType, organism_type) {
 
             vln_plot <-
                 plot_violin(object(),
-                    plot_colData_on_embedding = input$vlnGroup,
+                    group_by = input$vlnGroup,
                     features = input$customFeature, slot = input$slot
                 )
         })
@@ -130,7 +118,7 @@ plotViolin <- function(id, object, featureType, organism_type) {
                     base_size = 20,
                     x.text.angle = 45
                 ),
-                width = 16, height = 12
+                width = 8, height = 6
                 )
             }
         )
@@ -168,10 +156,10 @@ plotHeatmapui <- function(id) {
             uiOutput(ns("colAnnoVarui")),
             radioButtons(ns("assayName"), "Data Scaling",
                 choices = c(
-                    scaled = "scaledata",
-                    unscaled = "logcounts"
+                    scaled = "logcounts",
+                    unscaled = "counts"
                 ),
-                selected = "scaledata", inline = TRUE
+                selected = "logcounts", inline = TRUE
             ),
             selectizeInput(ns("dendroSelect"),
                 "Clustering algorithm or metadata for column
@@ -295,8 +283,8 @@ plotHeatmap <- function(id, object, featureType, organism_type) {
             },
             content = function(file) {
                 ggsave(file, as.ggplot(heatmap_plot()) +
-                    theme_pubr(base_size = 20, x.text.angle = 45),
-                width = 16, height = 12
+                    theme_void(),
+                width = 8, height = 6
                 )
             }
         )
@@ -393,7 +381,7 @@ integrateProj <- function(id, proj_matrices, object, proj_dir, con) {
                     batches <- path(
                         selectedProjects(), "output",
                         "singlecellexperiment",
-                        "unfiltered_object.rds"
+                        "unfiltered_sce.rds"
                     ) |>
                         map(readRDS)
 
@@ -476,7 +464,7 @@ integrateProj <- function(id, proj_matrices, object, proj_dir, con) {
                     {
                         # Sys.sleep(6)
                         incProgress(2 / 10)
-                        save_object(mergedObjects(),
+                        save_sce(mergedObjects(),
                             proj_dir = integratedProjectSavePath()
                         )
                         writeLines(character(), path(
@@ -638,19 +626,7 @@ plotDimRed <- function(id, object, plot_types, featureType,
         })
         prefill_feature <- reactive({
             req(featureType())
-            if (featureType() == "transcript") {
-                if (organism_type() == "human") {
-                    "ENST00000488147"
-                } else if (organism_type() == "mouse") {
-                    "ENSG00000488147"
-                }
-            } else if (featureType() == "gene") {
-                if (organism_type() == "human") {
-                    "NRL"
-                } else if (organism_type() == "mouse") {
-                    "NRL"
-                }
-            }
+            switch(featureType(), transcript = "ENST00000488147", gene = "NRL")
         })
         observe({
             req(prefill_feature())
@@ -667,14 +643,14 @@ plotDimRed <- function(id, object, plot_types, featureType,
             req(object())
             req(input$embedding)
             if (length(input$plottype) > 1) {
-                cross_plot_object <- unite_metadata(object(), input$plottype)
+                cross_plot_sce <- unite_metadata(object(), input$plottype)
 
                 newcolname <- paste(input$plottype, collapse = "_")
-                cross_plot_object[[newcolname]] <- Idents(cross_plot_object)
+                cross_plot_sce[[newcolname]] <- Idents(cross_plot_sce)
 
                 selected_plot(newcolname)
 
-                plot_colData_on_embedding(cross_plot_object,
+                plot_colData_on_embedding(cross_plot_sce,
                     dims = c(input$dim1, input$dim2),
                     embedding = input$embedding, group = NULL,
                     pt.size = input$dotSize,
@@ -836,7 +812,7 @@ diffexui <- function(id) {
             sliderInput(ns("FCcutoff"), "FC cutoff value (log2 fold change)",
                 min = 0, max = 10, step = 0.5, value = 1
             ),
-            sliderInput(ns("pCutoff"), "-log10 p adj value",
+            sliderInput(ns("pValCutoff"), "-log10 p adj value",
                 min = 0, max = 5, step = 0.5, value = 1.5
             ),
             plotOutput(ns("volcano")),
@@ -913,19 +889,6 @@ diffex <- function(id, object, featureType, selected_cells,
             )
         )
 
-        # brush <- reactive({
-        #     req(object())
-        #     d <- event_data("plotly_selected")
-        #     if (is.null(d)) {
-        #         msg <- "Click and drag events (i.e. select/lasso) appear here
-        #         (double-click to clear)"
-        #         return(d)
-        #     } else {
-        #         # selected_cells <- colnames(object())[as.numeric(d$key)]
-        #         d$key
-        #     }
-        # })
-
         custom_cluster1 <- eventReactive(input$saveClust1, {
             validate(
                 cells_selected(selected_cells())
@@ -966,7 +929,7 @@ diffex <- function(id, object, featureType, selected_cells,
 
         de_results <- eventReactive(input$diffex, {
             if (input$diffex_scheme == "louvain") {
-                run_object_de(object(), input$cluster1, input$cluster2,
+                sce_de(object(), input$cluster1, input$cluster2,
                     resolution = input$objectResolution,
                     diffex_scheme = input$diffex_scheme,
                     input$featureType, tests = input$diffex_method
@@ -982,7 +945,7 @@ diffex <- function(id, object, featureType, selected_cells,
                     custom_cluster2(),
                     " "
                 ))
-                run_object_de(object(), cluster1, cluster2,
+                sce_de(object(), cluster1, cluster2,
                     input$customResolution,
                     diffex_scheme = input$diffex_scheme, input$featureType,
                     tests = input$diffex_method
@@ -1045,17 +1008,17 @@ diffex <- function(id, object, featureType, selected_cells,
 
         cluster_list <- reactive({
             if (input$diffex_scheme == "louvain") {
-                object_meta <-
+                sce_meta <-
                     get_colData(object())[[paste0(
                         DefaultAssay(object()),
                         "_snn_res.",
                         input$objectResolution
                     )]]
                 cluster1_cells <- rownames(
-                    object_meta[object_meta == input$cluster1, , drop = FALSE]
+                    sce_meta[sce_meta == input$cluster1, , drop = FALSE]
                 )
                 cluster2_cells <- rownames(
-                    object_meta[object_meta == input$cluster2, , drop = FALSE]
+                    sce_meta[sce_meta == input$cluster2, , drop = FALSE]
                 )
                 list(cluster1 = cluster1_cells, cluster2 = cluster2_cells)
             } else if (input$diffex_scheme == "feature") {
@@ -1373,7 +1336,7 @@ allTranscripts <- function(id, object, featureType, organism_type) {
             req(object())
             req(input$embeddingGene)
             if (query_experiment(object(), "transcript")) {
-                get_transcripts_from_object(object(), input$embeddingGene,
+                get_transcripts_from_sce(object(), input$embeddingGene,
                     organism = organism_type()
                 )
             }
@@ -1435,7 +1398,7 @@ allTranscripts <- function(id, object, featureType, organism_type) {
                 paste(input$embeddingGene, "_transcripts.pdf", sep = "")
             },
             content = function(file) {
-                pdf(file)
+                pdf(file, width = 5, height = 4)
                 map(pList(), print)
                 dev.off()
             }
@@ -1470,12 +1433,12 @@ pathwayEnrichment <- function(id, object, featureType) {
         enriched_pathways <- eventReactive(input$calcPathwayEnrichment, {
             req(object())
             if (featureType() == "gene") {
-                enriched_object <- tryCatch(getEnrichedPathways(object()),
+                enriched_sce <- tryCatch(getEnrichedPathways(object()),
                     error = function(e) e
                 )
-                enrichr_available <- !any(is(enriched_object, "error"))
+                enrichr_available <- !any(is(enriched_sce, "error"))
                 if (enrichr_available) {
-                    object <- enriched_object
+                    object <- enriched_sce
                 }
             }
 
@@ -1635,7 +1598,7 @@ techInfoui <- function(id) {
 #' @noRd
 techInfo <- function(id, object) {
     moduleServer(id, function(input, output, session) {
-        object_metadata <- reactive({
+        sce_metadata <- reactive({
             req(object())
             metadata(object())$experiment
         })
@@ -1647,61 +1610,61 @@ techInfo <- function(id, object) {
                     "<strong><u>General</u></strong>",
                     "<ul>",
                     "<li><b>Date of analysis:</b> ",
-                    object_metadata()$date_of_analysis,
+                    sce_metadata()$date_of_analysis,
                     "<li><b>Date of export:</b> ",
-                    object_metadata()$date_of_export,
+                    sce_metadata()$date_of_export,
                     "<li><b>Experiment name:</b> ",
-                    object_metadata()$experiment_name,
+                    sce_metadata()$experiment_name,
                     "<li><b>Organism:</b> ",
-                    object_metadata()$organism,
+                    sce_metadata()$organism,
                     "</ul>",
                     "<strong><u>Parameters</u></strong>",
                     "<ul>",
                     "<li><b>Discard genes in fewer than X cells:</b> ",
-                    object_metadata()$parameters$discard_genes_expressed_in_fewer_cells_than,
+                    sce_metadata()$parameters$discard_genes_expressed_in_fewer_cells_than,
                     "<li><b>Keep mitochondrial genes:</b> ",
-                    object_metadata()$parameters$keep_mitochondrial_genes,
+                    sce_metadata()$parameters$keep_mitochondrial_genes,
                     "<li><b>Min/max # of UMI:</b> ",
                     paste0(
-                        object_metadata()$filtering$UMI_min, " / ",
-                        object_metadata()$filtering$UMI_max
+                        sce_metadata()$filtering$UMI_min, " / ",
+                        sce_metadata()$filtering$UMI_max
                     ),
                     "<li><b>Min/max # of expressed genes:</b> ",
                     paste0(
-                        object_metadata()$filtering$genes_min, " / ",
-                        object_metadata()$filtering$genes_max
+                        sce_metadata()$filtering$genes_min, " / ",
+                        sce_metadata()$filtering$genes_max
                     ),
                     "<li><b>Cluster resolution: </b>",
-                    paste(object_metadata()$parameters$cluster_resolution, collapse = ","),
+                    paste(sce_metadata()$parameters$cluster_resolution, collapse = ","),
                     "<li><b>Number of principal components: </b>",
-                    object_metadata()$parameters$number_PCs,
+                    sce_metadata()$parameters$number_PCs,
                     "<li><b>Variables to regress: </b>",
-                    object_metadata()$parameters$variables_to_regress_out,
+                    sce_metadata()$parameters$variables_to_regress_out,
                     "<li><b>tSNE perplexity: </b>",
-                    object_metadata()$parameters$tSNE_perplexity,
+                    sce_metadata()$parameters$tSNE_perplexity,
                     "</ul>",
                     "<strong><u>Marker genes</u></strong>",
                     "<ul>",
                     # "<li><b>Only positive:</b> ",
-                    # object_metadata()$marker_genes$parameters$only_positive,
+                    # sce_metadata()$marker_genes$parameters$only_positive,
                     # "<li><b>Fraction of cells in group of interest that must express marker gene:</b> ",
-                    # object_metadata()$marker_genes$parameters$minimum_percentage,
+                    # sce_metadata()$marker_genes$parameters$minimum_percentage,
                     # "<li><b>LogFC threshold:</b> ",
-                    # object_metadata()$marker_genes$parameters$logFC_threshold,
+                    # sce_metadata()$marker_genes$parameters$logFC_threshold,
                     "<li><b>p-value threshold:</b> ",
                     "0.05",
-                    # object_metadata()$marker_genes$parameters$p_value_threshold,
+                    # sce_metadata()$marker_genes$parameters$p_value_threshold,
                     "</ul>",
                     "<strong><u>Pathway enrichment</u></strong>",
                     "<ul>",
                     # "<li><b>Enrichr:</b>",
                     # "<ul>",
                     # "<li><b>Databases:</b> ",
-                    # paste0(object_metadata()$enriched_pathways$enrichr$parameters$databases, collapse = ", "),
+                    # paste0(sce_metadata()$enriched_pathways$enrichr$parameters$databases, collapse = ", "),
                     # "<li><b>Adj. p-value cut-off:</b> ",
-                    # object_metadata()$enriched_pathways$enrichr$parameters$adj_p_cutoff,
+                    # sce_metadata()$enriched_pathways$enrichr$parameters$adj_p_cutoff,
                     # "<li><b>Max. terms:</b> ",
-                    # object_metadata()$enriched_pathways$enrichr$parameters$max_terms,
+                    # sce_metadata()$enriched_pathways$enrichr$parameters$max_terms,
                     # "</ul>",
                     "</ul>"
                 )
@@ -1710,13 +1673,13 @@ techInfo <- function(id, object) {
                     "<strong><u>Technical info (package versions)</u></strong>",
                     "<ul>",
                     "<li><strong>chevreul version:</strong> ",
-                    object_metadata()$chevreul_version,
+                    sce_metadata()$chevreul_version,
                     "<li><strong>SingleCellExperiment version:</strong> ",
-                    object_metadata()$SingleCellExperiment_version,
+                    sce_metadata()$SingleCellExperiment_version,
                     "<li><strong>Session info:</strong> ",
                     "</ul>",
                     "<pre>",
-                    object_metadata()$sessionInfo,
+                    sce_metadata()$sessionInfo,
                     "</pre>"
                 )
             })
@@ -1745,7 +1708,7 @@ plotCoverage_UI <- function(id) {
             downloadButton(ns("downloadPlot"), "Download Coverage Plot"),
             uiOutput(ns("displayvaluesui")),
             br(),
-            chevreulDropDownButton(ns("coveragePlotSettings")),
+            chevreulDropDownButton(ns("coveragePlotSettings"),
             checkboxInput(ns("collapseIntrons"), "Collapse Introns",
                 value = TRUE
             ),
@@ -1762,7 +1725,7 @@ plotCoverage_UI <- function(id) {
                 selected = "log10"
             ),
             numericInput(ns("start"), "start coordinate", value = NULL),
-            numericInput(ns("end"), "end coordinate", value = NULL),
+            numericInput(ns("end"), "end coordinate", value = NULL)),
             DTOutput(ns("coverageTable")),
             plotOutput(ns("coveragePlot"), height = "1500px"),
             width = 12
@@ -2015,9 +1978,9 @@ reformatMetadataDR <- function(id, object,
 
                 object(set_colData(object(), read_csv(inFile$datapath)))
             } else if (input$updateMethod == "spreadsheet") {
-                reformatted_object <-
+                reformatted_sce <-
                     propagate_spreadsheet_changes(values$data_active, object())
-                object(reformatted_object)
+                object(reformatted_sce)
             }
         })
 

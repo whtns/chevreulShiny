@@ -249,7 +249,7 @@ chevreulApp <-
         w <- Waiter$new()
 
         observe_helpers(
-            help_dir = system.file("helpers", package = "chevreul"))
+            help_dir = system.file("helpers", package = "chevreulShiny"))
         options(warn = -1)
 
         con <- reactive({
@@ -338,8 +338,8 @@ chevreulApp <-
                 {
                     incProgress(2 / 10)
                     message(uploadSCEPath())
-                    updated_object <- readRDS(uploadSCEPath())
-                    object(updated_object)
+                    updated_sce <- readRDS(uploadSCEPath())
+                    object(updated_sce)
                     incProgress(6 / 10)
 
                     organism <- case_when(
@@ -419,10 +419,10 @@ chevreulApp <-
         })
 
         observe({
-            reformatted_object <- reformatMetadataDR(
+            reformatted_sce <- reformatMetadataDR(
                                              "reformatMetadataDR", object,
                                              featureType)
-            object(reformatted_object())
+            object(reformatted_sce())
         })
 
         reductions <- reactive({
@@ -483,23 +483,23 @@ chevreulApp <-
                     html("subsetMessages", "")
                     message("Beginning")
 
-                    subset_object <-
+                    subset_sce <-
                       object()[, colnames(object()) %in% cell_subset()]
-                    object(subset_object)
+                    object(subset_sce)
                     if (length(unique(object()[["batch"]])) > 1) {
                         message("reintegrating gene expression")
-                        reintegrated_object <- reintegrate_object(object(),
+                        reintegrated_sce <- reintegrate_sce(object(),
                             resolution = seq(0.2, 1, by = 0.2),
                             legacy_settings = input$legacySettingsSubset,
                             organism = metadata(object())$experiment$organism
                         )
-                        object(reintegrated_object)
+                        object(reintegrated_sce)
                     } else {
-                        subset_object <- object_pipeline(
+                        subset_sce <- sce_process(
                           object(),
                           resolution = seq(0.2, 1, by = 0.2),
                           legacy_settings = input$legacySettingsSubset)
-                        object(subset_object)
+                        object(subset_sce)
                     }
                     message("Complete!")
                 },
@@ -518,28 +518,28 @@ chevreulApp <-
                 {
                     html("subsetMessages", "")
                     message("Beginning")
-                    subset_object <- subset_by_meta(
+                    subset_sce <- subset_by_meta(
                         input$uploadCsv$datapath,
                         object()
                     )
-                    object(subset_object)
+                    object(subset_sce)
                     if (length(unique(object()[["batch"]])) > 1) {
                         message("reintegrating gene expression")
-                        reintegrated_object <- reintegrate_object(object(),
+                        reintegrated_sce <- reintegrate_sce(object(),
                             resolution = seq(0.2, 1, by = 0.2),
                             legacy_settings = input$legacySettingsSubset,
                             organism = metadata(object())$experiment$organism
                         )
-                        object(reintegrated_object)
+                        object(reintegrated_sce)
                     } else {
-                        subset_object <- object_pipeline(object(),
+                        subset_sce <- sce_process(object(),
                             resolution = seq(0.2,
                                 2,
                                 by = 0.2
                             ),
                             legacy_settings = input$legacySettingsSubset
                         )
-                        object(subset_object)
+                        object(subset_sce)
                     }
                     message("Complete!")
                 },
@@ -586,8 +586,8 @@ chevreulApp <-
                 title = "Regressing cycle effects",
                 "This process may take a minute or two!"
             ))
-            regressed_object <- regress_cell_cycle(object())
-            object(regressed_object)
+            regressed_sce <- regress_cell_cycle(object())
+            object(regressed_sce)
             removeModal()
         })
 

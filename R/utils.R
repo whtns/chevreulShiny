@@ -33,7 +33,7 @@ unite_metadata <-
 #'
 #' @return transcripts constituting a 
 #' gene of interest in a SingleCellExperiment object
-get_transcripts_from_object <- function(object, gene, organism = "human") {
+get_transcripts_from_sce <- function(object, gene, organism = "human") {
     transcripts <- genes_to_transcripts(gene, organism)
 
     transcripts <- transcripts[transcripts %in% get_features(object, 
@@ -257,7 +257,7 @@ metadata_from_batch <- function(
 }
 
 
-#' Save object to <project>/output/sce/<feature>_object.rds
+#' Save object to <project>/output/sce/<feature>_sce.rds
 #'
 #' @param object a SingleCellExperiment object
 #' @param prefix a prefix for saving
@@ -267,15 +267,15 @@ metadata_from_batch <- function(
 #'
 #'
 #'
-save_object <- function(object, prefix = "unfiltered", proj_dir = getwd()) {
-    object_dir <- path(proj_dir, "output", "singlecellexperiment")
+save_sce <- function(object, prefix = "unfiltered", proj_dir = getwd()) {
+    sce_dir <- path(proj_dir, "output", "singlecellexperiment")
 
-    dir.create(object_dir)
+    dir.create(sce_dir)
 
-    object_path <- path(object_dir, paste0(prefix, "_sce.rds"))
+    sce_path <- path(sce_dir, paste0(prefix, "_sce.rds"))
 
-    message(glue("saving to {object_path}"))
-    saveRDS(object, object_path)
+    message(glue("saving to {sce_path}"))
+    saveRDS(object, sce_path)
 
     return(object)
 }

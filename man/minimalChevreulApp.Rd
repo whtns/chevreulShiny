@@ -5,7 +5,7 @@
 \title{Create a minimal chevreul app using SingleCellExperiment input}
 \usage{
 minimalChevreulApp(
-  single_cell_object = NULL,
+  single_cell_sce = NULL,
   appTitle = NULL,
   organism_type = "human",
   futureMb = 13000,
@@ -13,7 +13,7 @@ minimalChevreulApp(
 )
 }
 \arguments{
-\item{single_cell_object}{a singlecell object}
+\item{single_cell_sce}{a singlecell object}
 
 \item{appTitle}{a title for the app}
 

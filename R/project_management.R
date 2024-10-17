@@ -34,30 +34,31 @@ create_proj_matrix <- function(proj_list) {
     return(proj_matrices)
 }
 
-#' Subset by new metadata
+#' Subset by new colData
 #'
-#' Subset the object using new metadata
+#' Subset the object using new colData
 #'
-#' @param meta_path Path to new metadata
+#' @param colData_path Path to new colData
 #' @param object A object
 #'
 #' @return a SingleCellExperiment object
 #'
-subset_by_meta <- function(meta_path, object) {
-    upload_meta <- read_csv(meta_path, col_names = "sample_id") |>
+subset_by_colData <- function(colData_path, object) {
+    upload_colData <- read_csv(colData_path, col_names = "sample_id") |>
         filter(!is.na(sample_id) & !sample_id == "sample_id") |>
         mutate(name = sample_id) |>
         column_to_rownames("sample_id") |>
         identity()
 
-    upload_cells <- rownames(upload_meta)
+    upload_cells <- rownames(upload_colData)
 
     object <- object[, colnames(object) %in% upload_cells]
 
-    colData(object) <- merge(colData(object), upload_meta, by = "row.names")
+    colData(object) <- merge(colData(object), upload_colData, by = "row.names")
 
     return(object)
 }
+
 
 #' Read in Gene and Transcript SingleCellExperiment Objects
 #'
@@ -65,17 +66,17 @@ subset_by_meta <- function(meta_path, object) {
 #' @param prefix default "unfiltered"
 #'
 #' @return a SingleCellExperiment object
-load_object_path <- function(proj_dir = getwd(), prefix = "unfiltered") {
-    object_regex <- paste0(paste0(".*/", prefix, "_object.rds"))
+load_alabaster_path <- function(proj_dir = getwd(), prefix = "unfiltered") {
+    alabaster_regex <- paste0(paste0(".*/", prefix, "_alabaster"))
 
-    object_path <- path(proj_dir, "output", "singlecellexperiment") |>
-        dir_ls(regexp = object_regex)
+    alabaster_path <- path(proj_dir, "output", "singlecellexperiment") |>
+        dir_ls(regexp = alabaster_regex)
 
-    if (!length(object_path) == 0) {
-        return(object_path)
+    if (!length(alabaster_path) == 0) {
+        return(alabaster_path)
     }
 
-    stop(object_path, " does not exist in current working directory ", getwd(), ".",
+    stop(alabaster_path, " does not exist in current working directory ", getwd(), ".",
         call. = FALSE
     )
 }
@@ -83,10 +84,10 @@ load_object_path <- function(proj_dir = getwd(), prefix = "unfiltered") {
 #' Load SingleCellExperiment Files from a single project path
 #'
 #' @param proj_dir project directory
-#' @param ... extra args passed to load_object_path
+#' @param ... extra args passed to load_alabaster_path
 #'
 #' @return a SingleCellExperiment object
-load_object_from_proj <- function(proj_dir, ...) {
-    object_file <- load_object_path(proj_dir, ...)
-    object_file <- readRDS(object_file)
+load_alabaster_from_proj <- function(proj_dir, ...) {
+    alabaster_file <- load_alabaster_path(proj_dir, ...)
+    alabaster_file <- readObject(alabaster_file)
 }

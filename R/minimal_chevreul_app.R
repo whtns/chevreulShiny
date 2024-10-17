@@ -1,6 +1,6 @@
 #' Create a minimal chevreul app using SingleCellExperiment input
 #'
-#' @param single_cell_object a singlecell object
+#' @param single_cell_sce a singlecell object
 #' @param appTitle a title for the app
 #' @param organism_type human or mouse
 #' @param futureMb the megabytes available for the future package
@@ -16,7 +16,7 @@
 #'   minimalChevreulApp(tiny_sce)
 #' }
 #' 
-minimalChevreulApp <- function(single_cell_object = NULL,
+minimalChevreulApp <- function(single_cell_sce = NULL,
                           appTitle = NULL,
                           organism_type = "human",
                           futureMb = 13000,
@@ -38,27 +38,29 @@ minimalChevreulApp <- function(single_cell_object = NULL,
         textOutput("appTitle"),
         uiOutput("featureType"),
         sidebarMenu(
-            menuItem("Reformat Metadata",
-                tabName = "reformatMetadata", icon = icon("columns")
-            ), menuItem("Plot Data",
+            menuItem("Overview Plots",
                 tabName = "comparePlots", icon = icon("chart-bar"),
                 selected = TRUE
-            ), menuItem("Heatmap/Violin Plots",
+            ), menuItem("Violin",
                 tabName = "violinPlots", icon = icon("sort")
-                # ), menuItem("Coverage Plots",
-                #   tabName = "coveragePlots", icon = icon("mountain")
-            ), menuItem("Differential Expression",
+                ), menuItem("Differential Expression",
                 tabName = "diffex", icon = icon("magnet")
                 # ), menuItem("Pathway Enrichment Analysis",
                 #   tabName = "pathwayEnrichment", icon = icon("sitemap")
             ), menuItem("Find Markers",
                 tabName = "findMarkers", icon = icon("bullhorn")
-            ), menuItem("Subset Object Input",
+            ), menuItem("Heatmap",
+                       tabName = "heatmapPlots", icon = icon("square")
+            ), menuItem("Transcripts",
+                        tabName = "allTranscripts", icon = icon("sliders-h")
+            ), menuItem("Subset",
                 tabName = "subsetObject", icon = icon("filter")
-            ), menuItem("All Transcripts",
-                tabName = "allTranscripts", icon = icon("sliders-h")
-            ), menuItem("Regress Features",
+            ),  menuItem("Regression",
                 tabName = "regressFeatures", icon = icon("eraser")
+            ),menuItem("Formatting",
+                       tabName = "reformatMetadata", icon = icon("columns")
+            ), menuItem("Coverage Plots",
+                        tabName = "coveragePlots", icon = icon("mountain")
             ), menuItem("Technical Information",
                 tabName = "techInfo", icon = icon("cogs")
             )
@@ -74,7 +76,7 @@ minimalChevreulApp <- function(single_cell_object = NULL,
         tabItems(
             tabItem(
                 tabName = "comparePlots",
-                h2("Compare Plots") |>
+                h2("Overview Plots") |>
                     default_helper(type = "markdown", 
                                    content = "comparePlots"),
                 plotDimRedui("plotdimred1"),
@@ -91,10 +93,13 @@ minimalChevreulApp <- function(single_cell_object = NULL,
             tabItem(
                 tabName = "violinPlots",
                 fluidRow(
-                    plotHeatmapui("heatMap")
-                ),
-                fluidRow(
                     plotViolinui("violinPlot")
+                )
+            ),
+            tabItem(
+                tabName = "heatmapPlots",
+                fluidRow(
+                    plotHeatmapui("heatMap")
                 )
             ),
             tabItem(
@@ -201,8 +206,8 @@ minimalChevreulApp <- function(single_cell_object = NULL,
 
         object <- reactiveVal(NULL)
         observe({
-            req(!is.null(single_cell_object))
-            object(single_cell_object)
+            req(!is.null(single_cell_sce))
+            object(single_cell_sce)
         })
 
         organism_type <- reactive({
@@ -221,10 +226,10 @@ minimalChevreulApp <- function(single_cell_object = NULL,
 
 
         observe({
-            reformatted_object <- reformatMetadataDR( 
+            reformatted_sce <- reformatMetadataDR( 
                                              "reformatMetadataDR", 
                                              object, featureType)
-            object(reformatted_object())
+            object(reformatted_sce())
         })
 
         reductions <- reactive({
@@ -314,22 +319,22 @@ minimalChevreulApp <- function(single_cell_object = NULL,
                 {
                     html("subsetMessages", "")
                     message("Beginning")
-                    subset_object <- 
+                    subset_sce <- 
                         object()[, colnames(object()) %in% 
                                      subset_selected_cells()]
-                    object(subset_object)
+                    object(subset_sce)
                     if (length(unique(object()$batch)) > 1) {
                         message("reintegrating gene expression")
-                        reintegrated_object <- reintegrate_object(object(),
+                        reintegrated_sce <- reintegrate_sce(object(),
                             resolution = seq(0.2, 1, by = 0.2),
                             organism = metadata(object())$experiment$organism
                         )
-                        object(reintegrated_object)
+                        object(reintegrated_sce)
                     } else {
-                        processed_object <- 
-                            object_pipeline(object(), 
+                        processed_sce <- 
+                            sce_process(object(), 
                                             resolution = seq(0.2, 1, by = 0.2))
-                        object(processed_object)
+                        object(processed_sce)
                     }
                     message("Complete!")
                 },
@@ -348,24 +353,24 @@ minimalChevreulApp <- function(single_cell_object = NULL,
                 {
                     html("subsetMessages", "")
                     message("Beginning")
-                    subset_object <- subset_by_meta(
+                    subset_sce <- subset_by_meta(
                         input$uploadCsv$datapath,
                         object()
                     )
-                    object(subset_object)
+                    object(subset_sce)
 
                     if (length(unique(object()[["batch"]])) > 1) {
                         message("reintegrating gene expression")
-                        reintegrated_object <- reintegrate_object(object(),
+                        reintegrated_sce <- reintegrate_sce(object(),
                             resolution = seq(0.2, 1, by = 0.2),
                             organism = metadata(object())$experiment$organism
                         )
-                        object(reintegrated_object)
+                        object(reintegrated_sce)
                     } else {
-                        processed_object <- 
-                            object_pipeline(object(), 
+                        processed_sce <- 
+                            sce_process(object(), 
                                            resolution = seq(0.2, 1, by = 0.2))
-                        object(processed_object)
+                        object(processed_sce)
                     }
                     message("Complete!")
                 },
@@ -384,8 +389,8 @@ minimalChevreulApp <- function(single_cell_object = NULL,
                 title = "Regressing out cell cycle effects",
                 "This process may take a minute or two!"
             ))
-            regressed_object <- regress_cell_cycle(object())
-            object(regressed_object)
+            regressed_sce <- regress_cell_cycle(object())
+            object(regressed_sce)
             removeModal()
         })
 

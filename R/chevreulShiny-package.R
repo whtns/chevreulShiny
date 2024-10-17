@@ -2,6 +2,8 @@
 "_PACKAGE"
 
 ## usethis namespace: start
+#' @importFrom alabaster.base saveObject
+#' @importFrom alabaster.base readObject
 #' @importFrom chevreuldata human_gene_transcript_sce
 #' @importFrom clustree clustree
 #' @importFrom ComplexHeatmap draw

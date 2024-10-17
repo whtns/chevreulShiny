@@ -24,6 +24,7 @@ Depends:
     chevreulProcess,
     chevreulPlot
 Imports:
+    alabaster.base,
     chevreuldata,
     clustree,
     ComplexHeatmap,

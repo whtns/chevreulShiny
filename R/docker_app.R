@@ -210,10 +210,10 @@ dockerChevreulApp <- function(
 
 
         observe({
-            reformatted_object <- reformatMetadataDR( 
+            reformatted_sce <- reformatMetadataDR( 
                                              "reformatMetadataDR", 
                                              object, featureType)
-            object(reformatted_object())
+            object(reformatted_sce())
         })
 
         reductions <- reactive({
@@ -309,23 +309,23 @@ dockerChevreulApp <- function(
                 {
                     html("subsetMessages", "")
                     message("Beginning")
-                    subset_object <- 
+                    subset_sce <- 
                         object()[, colnames(object()) %in% 
                                      subset_selected_cells()]
-                    object(subset_object)
+                    object(subset_sce)
                     if (length(unique(object()$batch)) > 1) {
                         message("reintegrating gene expression")
-                        reintegrated_object <- 
-                            reintegrate_object(object(),
+                        reintegrated_sce <- 
+                            reintegrate_sce(object(),
                             resolution = seq(0.2, 1, by = 0.2),
                             organism = metadata(object())[["experiment"]][["organism"]]
                         )
-                        object(reintegrated_object)
+                        object(reintegrated_sce)
                     } else {
-                        processed_object <- 
+                        processed_sce <- 
                             obect_pipeline(object(), 
                                            resolution = seq(0.2, 1, by = 0.2))
-                        object(processed_object)
+                        object(processed_sce)
                     }
                     message("Complete!")
                 },
@@ -344,24 +344,24 @@ dockerChevreulApp <- function(
                 {
                     html("subsetMessages", "")
                     message("Beginning")
-                    subset_object <- subset_by_meta(
+                    subset_sce <- subset_by_meta(
                         input$uploadCsv$datapath,
                         object()
                     )
-                    object(subset_object)
+                    object(subset_sce)
 
                     if (length(unique(object()[["batch"]])) > 1) {
                         message("reintegrating gene expression")
-                        reintegrated_object <- reintegrate_object(object(),
+                        reintegrated_sce <- reintegrate_sce(object(),
                             resolution = seq(0.2, 1, by = 0.2),
                             organism = metadata(object())[["experiment"]][["organism"]]
                         )
-                        object(reintegrated_object)
+                        object(reintegrated_sce)
                     } else {
-                        processed_object <- 
+                        processed_sce <- 
                             obect_pipeline(object(), 
                                            resolution = seq(0.2, 1, by = 0.2))
-                        object(processed_object)
+                        object(processed_sce)
                     }
                     message("Complete!")
                 },
@@ -380,8 +380,8 @@ dockerChevreulApp <- function(
                 title = "Regressing out cell cycle effects",
                 "This process may take a minute or two!"
             ))
-            regressed_object <- regress_cell_cycle(object())
-            object(regressed_object)
+            regressed_sce <- regress_cell_cycle(object())
+            object(regressed_sce)
             removeModal()
         })
 
